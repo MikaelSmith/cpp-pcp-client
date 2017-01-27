@@ -84,6 +84,11 @@ Connector::Connector(std::vector<std::string> broker_ws_uris,
           associate_response_callback_ {},
           session_association_ { std::move(association_timeout_s) }
 {
+    // Rely on ConnectorBase being an abstract class with no operations in the constructor.
+    for (auto& broker : broker_ws_uris_) {
+        broker += (broker.back() == '/' ? "" : "/") + client_metadata_.client_type;
+    }
+
     // Add PCP schemas to the Validator instance member
     validator_.registerSchema(Protocol::EnvelopeSchema());
     validator_.registerSchema(Protocol::DebugSchema());
