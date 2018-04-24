@@ -6,6 +6,10 @@
 #include <cpp-pcp-client/util/thread.hpp>
 #include <cpp-pcp-client/export.h>
 
+#include <websocketpp/common/connection_hdl.hpp>
+#include <websocketpp/client.hpp>
+#include <websocketpp/config/asio_client.hpp>
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -25,10 +29,6 @@ namespace boost {
 namespace websocketpp {
     template <typename T>
     class client;
-
-    namespace config {
-        struct asio_tls_client;
-    }
 
     namespace message_buffer {
         namespace alloc {
@@ -57,7 +57,21 @@ static const std::string DEFAULT_CLOSE_REASON { "Closed by client" };
 
 // Configuration of the WebSocket transport layer
 
-using WS_Client_Type = websocketpp::client<websocketpp::config::asio_tls_client>;
+struct my_asio_tls_client : public websocketpp::config::asio_tls_client {
+    struct transport_config : public websocketpp::config::asio_tls_client::transport_config {
+        static const long timeout_socket_pre_init = 10000;
+        static const long timeout_proxy = 10000;
+        static const long timeout_socket_post_init = 10000;
+        static const long timeout_dns_resolve = 10000;
+        static const long timeout_connect = 10000;
+        static const long timeout_socket_shutdown = 10000;
+    };
+
+    typedef websocketpp::transport::asio::endpoint<transport_config>
+        transport_type;
+};
+
+using WS_Client_Type = websocketpp::client<my_asio_tls_client>;
 using WS_Context_Ptr = websocketpp::lib::shared_ptr<boost::asio::ssl::context>;
 using WS_Connection_Handle = websocketpp::connection_hdl;
 

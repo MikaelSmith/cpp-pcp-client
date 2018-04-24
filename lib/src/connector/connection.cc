@@ -115,7 +115,9 @@ Connection::Connection(std::vector<std::string> broker_ws_uris,
         endpoint_->set_tcp_post_init_handler(
             std::bind(&Connection::onPostTCPInit, this, std::placeholders::_1));
 
-        // Pong timeout
+        // timeouts
+        endpoint_->set_open_handshake_timeout(client_metadata_.ws_connection_timeout_ms);
+        endpoint_->set_close_handshake_timeout(client_metadata_.ws_connection_timeout_ms);
         endpoint_->set_pong_timeout(client_metadata_.pong_timeout_ms);
 
         // Start the event loop thread
@@ -400,7 +402,6 @@ void Connection::connect_()
     connection_handle_ = connection_ptr->get_handle();
     LOG_INFO("Establishing the WebSocket connection with '{1}' with a timeout of {2} ms",
               ws_uri, client_metadata_.ws_connection_timeout_ms);
-    connection_ptr->set_open_handshake_timeout(client_metadata_.ws_connection_timeout_ms);
 
     try {
         endpoint_->connect(connection_ptr);
