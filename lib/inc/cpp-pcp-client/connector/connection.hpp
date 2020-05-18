@@ -12,14 +12,12 @@
 #include <atomic>
 #include <stdint.h>
 
-// Forward declarations for boost::asio
-namespace boost {
-    namespace asio {
-        namespace ssl {
-            class context;
-        }
+// Forward declarations for asio
+namespace asio {
+    namespace ssl {
+        class context;
     }
-}  // namespace boost
+}
 
 // Forward declarations for websocketpp
 namespace websocketpp {
@@ -58,7 +56,7 @@ static const std::string DEFAULT_CLOSE_REASON { "Closed by client" };
 // Configuration of the WebSocket transport layer
 
 using WS_Client_Type = websocketpp::client<websocketpp::config::asio_tls_client>;
-using WS_Context_Ptr = websocketpp::lib::shared_ptr<boost::asio::ssl::context>;
+using WS_Context_Ptr = websocketpp::lib::shared_ptr<asio::ssl::context>;
 using WS_Connection_Handle = websocketpp::connection_hdl;
 
 // Connection States

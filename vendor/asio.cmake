@@ -1,0 +1,16 @@
+INCLUDE(ExternalProject)
+
+# Add an external project to build asio
+EXTERNALPROJECT_ADD(
+    asio
+    PREFIX "${PROJECT_BINARY_DIR}"
+    URL "file://${VENDOR_DIRECTORY}/asio-1-16-1.zip"
+    URL_MD5 "10c5c84068bf98bbe0accb9989318b12"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    BUILD_IN_SOURCE 1
+    INSTALL_COMMAND ""
+)
+
+EXTERNALPROJECT_GET_PROPERTY(asio SOURCE_DIR)
+SET(ASIO_INCLUDE_DIRS "${SOURCE_DIR}/asio/include")

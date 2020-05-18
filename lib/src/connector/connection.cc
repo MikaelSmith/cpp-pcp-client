@@ -454,8 +454,7 @@ class verbose_verification
             : verifier_(verifier), uri_(std::move(uri))
     {}
 
-    bool operator()(bool preverified,
-                    boost::asio::ssl::verify_context& ctx) {
+    bool operator()(bool preverified, asio::ssl::verify_context& ctx) {
         char subject_name[256], issuer_name[256];
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
         X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
@@ -490,19 +489,19 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
     // NB: for TLS certificates, refer to:
     // www.boost.org/doc/libs/1_56_0/doc/html/boost_asio/reference/ssl__context.html
     WS_Context_Ptr ctx {
-        new boost::asio::ssl::context(boost::asio::ssl::context::tlsv12_client) };
+        new asio::ssl::context(asio::ssl::context::tlsv12_client) };
     try {
         // no_sslv2 and no_sslv3 here are not strictly necessary, as the tlsv1 method above
         // ensures we will not try to initiate any connection below TLSv1. However, this avoids
         // any ambiguity in what we support.
-        ctx->set_options(boost::asio::ssl::context::default_workarounds |
-                         boost::asio::ssl::context::no_sslv2 |
-                         boost::asio::ssl::context::no_sslv3 |
-                         boost::asio::ssl::context::single_dh_use);
+        ctx->set_options(asio::ssl::context::default_workarounds |
+                         asio::ssl::context::no_sslv2 |
+                         asio::ssl::context::no_sslv3 |
+                         asio::ssl::context::single_dh_use);
         ctx->use_certificate_file(client_metadata_.crt,
-                                  boost::asio::ssl::context::file_format::pem);
+                                  asio::ssl::context::file_format::pem);
         ctx->use_private_key_file(client_metadata_.key,
-                                  boost::asio::ssl::context::file_format::pem);
+                                  asio::ssl::context::file_format::pem);
         ctx->load_verify_file(client_metadata_.ca);
 
         if (client_metadata_.crl.length() > 0) {
@@ -518,10 +517,10 @@ WS_Context_Ptr Connection::onTlsInit(WS_Connection_Handle hdl)
         }
         auto uri_txt = getWsUri();
         auto uri = websocketpp::uri(uri_txt);
-        ctx->set_verify_mode(boost::asio::ssl::verify_peer);
+        ctx->set_verify_mode(asio::ssl::verify_peer);
         ctx->set_verify_callback(
             make_verbose_verification(
-                boost::asio::ssl::rfc2818_verification(uri.get_host()), uri_txt));
+                asio::ssl::rfc2818_verification(uri.get_host()), uri_txt));
         LOG_DEBUG("Initialized SSL context to verify broker {1}", uri.get_host());
     } catch (std::exception& e) {
         // This is unexpected, as the CliendMetadata ctor does
